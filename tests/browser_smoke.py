@@ -60,7 +60,10 @@ def run_app(page):
 
 def main():
     with sync_playwright() as p:
-        browser=p.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
+        launch={"headless":True,"args":["--no-sandbox"]}
+        chromium=Path("/usr/bin/chromium")
+        if chromium.exists(): launch["executable_path"]=str(chromium)
+        browser=p.chromium.launch(**launch)
         ctx=browser.new_context(service_workers='block')
         page=ctx.new_page();run_player(page)
         page=ctx.new_page();run_portal(page)
