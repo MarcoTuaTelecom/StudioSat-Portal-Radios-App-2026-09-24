@@ -143,7 +143,10 @@ for p in ROOT.rglob('*'):
     if p.name=='validate_project.py': continue
     if p.suffix.lower() not in {'.md','.txt','.html','.js','.json','.py','.sh','.conf','.svg','.webmanifest'}: continue
     txt=p.read_text(encoding='utf-8',errors='ignore')
-    if re.search(r'(?i)studio sat web\s*-\s*em constru',txt): errors.append('stale-construction:'+str(rel))
+    # tests/nginx_integration.sh deliberately contains the stale-page fixture
+    # to prove exact radio hostnames beat the legacy wildcard.
+    if rel.as_posix()!='tests/nginx_integration.sh' and re.search(r'(?i)studio sat web\s*-\s*em constru',txt):
+        errors.append('stale-construction:'+str(rel))
     if re.search(r'(?<![A-Za-z0-9])P2(?![A-Za-z0-9])',txt): errors.append('banned-legacy-marker:'+str(rel))
     if p.name!='validate_project.py' and re.search(r'(?i)(password|passwd|token|secret)\s*[=:]\s*["\']?[^\s"\']{8,}',txt):
         errors.append('possible-secret:'+str(rel))
