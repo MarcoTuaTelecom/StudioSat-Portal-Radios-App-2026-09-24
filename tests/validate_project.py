@@ -14,7 +14,7 @@ required=[
  'assets/icons/icon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png',
  'assets/vendor/hls.min.js',
  'nginx/studiosat-radio-clean.conf',
- 'scripts/fetch-hls-vendor.sh','scripts/deploy-production.sh',
+ 'scripts/fetch-hls-vendor.sh','scripts/deploy-production.sh','scripts/rollback-production.sh',
  'tests/nginx_integration.sh','tests/browser_smoke.py'
 ]
 for rel in required:
@@ -140,6 +140,7 @@ for p in ROOT.rglob('*'):
     rel=p.relative_to(ROOT)
     if any(part in {'.git','__pycache__'} for part in rel.parts): continue
     if not p.is_file(): continue
+    if p.name=='validate_project.py': continue
     if p.suffix.lower() not in {'.md','.txt','.html','.js','.json','.py','.sh','.conf','.svg','.webmanifest'}: continue
     txt=p.read_text(encoding='utf-8',errors='ignore')
     if re.search(r'(?i)studio sat web\s*-\s*em constru',txt): errors.append('stale-construction:'+str(rel))
