@@ -14,8 +14,8 @@
 3. Tratamento de erro HLS fatal foi separado em rede e mídia, com limites de retentativa.
 4. PWA e favoritos voltaram ao projeto-fonte.
 5. Service Worker ignora HLS, segmentos e metadata ao vivo.
-6. Portal/app não dependem mais do estado do P2 para serem implantados.
-7. Nginx de rádio foi isolado da lógica de playout.
+6. Portal/app são independentes de qualquer mecanismo de playout.
+7. Nginx de rádio foi isolado da lógica de origem de áudio.
 8. Central de instalação foi reconstruída.
 9. O código não inventa o APK Android: a origem histórica do APK não está versionada no repositório analisado.
 10. Scripts de backup, deploy e rollback foram separados.
@@ -27,6 +27,8 @@
 13. A Central aberta em hosts `www` poderia sugerir PWA da origem errada; `/app/` em `www.*` agora redireciona para `radio.studiosatweb.com.br/app/`.
 14. O deploy anterior não eliminava os conflitos Nginx legados já identificados no NS1; o novo deploy é transacional, preserva TV e desativa somente os conflitos de rádio conhecidos.
 15. O deploy anterior não exigia bundle HLS.js oficial; agora o backup completo acontece primeiro, depois o bundle 1.7.3 é baixado para `/run`, validado e injetado no stage sem alterar o checkout.
+16. O backup de produção foi reduzido ao stack atual relevante: Nginx, MediaMTX, TLS, web e estado do sistema.
+17. Toda dependência operacional de mecanismos de playout antigos foi removida da base atual.
 
 ## Testes executados
 
