@@ -42,13 +42,13 @@ O portal e o app **não dependem de P2, Liquidsoap, FFmpeg ou RadioBOSS** para e
 
 ## HLS.js
 
-O repositório inclui um *bootstrap loader* de desenvolvimento fixado em `hls.js 1.7.3`. **O deploy de produção não aceita esse loader como dependência final**: antes de qualquer mutação no Nginx ele baixa o bundle oficial `1.7.3`, valida o tamanho e passa a servi-lo localmente em `/assets/vendor/hls.min.js`. Também é possível fazer isso manualmente com:
+O repositório inclui um *bootstrap loader* de desenvolvimento fixado em `hls.js 1.7.3`. **O deploy de produção não aceita esse loader como dependência final**: depois do backup completo e antes de qualquer mutação na web/Nginx, ele baixa o bundle oficial `1.7.3` para um arquivo temporário, valida o tamanho e instala esse bundle no stage de produção sem alterar o checkout do repositório. Também é possível atualizar manualmente o arquivo vendor do checkout com:
 
 ```bash
 sudo bash scripts/fetch-hls-vendor.sh
 ```
 
-Esse script substitui `assets/vendor/hls.min.js` pelo bundle oficial `1.7.3` antes do deploy.
+Quando chamado sem argumento, esse script substitui `assets/vendor/hls.min.js` pelo bundle oficial `1.7.3`. O deploy automático passa um destino temporário e mantém o checkout imutável.
 
 ## Validação local
 
