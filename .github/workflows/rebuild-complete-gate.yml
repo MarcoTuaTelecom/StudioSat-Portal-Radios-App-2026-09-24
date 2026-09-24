@@ -6,14 +6,38 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
+      - name: Install integration dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nginx curl openssl
+          pip install playwright
+          python -m playwright install chromium
       - name: Product contract
         run: python3 tests/validate_complete.py
       - name: JavaScript and shell syntax
         run: |
           node --check assets/media-engine.js
           node --check assets/portal-complete.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,subprocess
+          for f in ['listen/index.html','app/index.html']:
+              s=Path(f).read_text()
+              for i,b in enumerate(re.findall(r'<script(?:[^>]*)>(.*?)</script>',s,re.S)):
+                  if not b.strip(): continue
+                  p=Path('/tmp')/f"{Path(f).stem}-{i}.js";p.write_text(b)
+                  q=subprocess.run(['node','--check',str(p)],capture_output=True,text=True)
+                  if q.returncode: print(q.stderr);raise SystemExit(1)
+          print('INLINE_JS_SYNTAX=PASS')
+          PY
           bash -n scripts/probe-live-contract.sh
+          bash -n tests/nginx_complete_integration.sh
+      - name: Nginx integration with mock HLS
+        run: bash tests/nginx_complete_integration.sh
+      - name: Browser end-to-end
+        run: python3 tests/browser_complete.py
