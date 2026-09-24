@@ -3,6 +3,7 @@ set -Eeuo pipefail
 export LC_ALL=C
 umask 027
 [[ ${EUID:-$(id -u)} -eq 0 ]] || { echo FATAL=ROOT >&2; exit 1; }
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG="/root/2026-09-24-STUDIOSAT-PORTAL-APP-DEPLOY-$TS.txt"
@@ -27,11 +28,7 @@ HLS_TMP="/run/studiosat-hls-${TS}.min.js"
 MUTATED=0
 COMMITTED=0
 
-section(){ printf '
-================================================================
-%s
-================================================================
-' "$*"; }
+section(){ printf '\n================================================================\n%s\n================================================================\n' "$*"; }
 die(){ echo "FATAL=$*" >&2; exit 1; }
 need(){ command -v "$1" >/dev/null 2>&1 || die "MISSING:$1"; }
 
@@ -58,7 +55,7 @@ trap 'echo "ERROR_LINE=${BASH_LINENO[0]:-unknown}"' ERR
 section "0. ESCOPO"
 cat <<'EOF'
 Instala SOMENTE portal/player/app/assets e camada Nginx das rádios.
-Não inicia/para/reinicia P2.
+Não instala nem altera qualquer mecanismo de playout.
 Não instala Liquidsoap.
 Não altera RadioBOSS, DNS, firewall ou serviços de TV.
 MediaMTX não é reiniciado; apenas precisa estar ativo como backend HLS.
@@ -92,9 +89,8 @@ sha256sum "$HLS_TMP"
 section "4. ANALISE DE CONFLITOS NGINX"
 mkdir -p "$ROLLBACK"
 chmod 0700 "$ROLLBACK"
-# O compartilhado pode estar no estado antigo misto ou já limpo. Qualquer outro estado com paths de rádio aborta.
 python3 - "$SHARED" "$ROLLBACK/shared.patched" <<'PY'
-import sys,re
+import sys
 src,dst=sys.argv[1:]
 s=open(src,encoding='utf-8').read()
 old='location ~ ^/(tvkids|tvteens|tvviva|tvmaisjovem|tvkidsweb|radioprincipal|radiopop|radiorock|radioclassicas|radiocountry)(/.*)?$ {'
@@ -103,9 +99,7 @@ if old in s:
     if s.count(old)!=1: raise SystemExit('mixed regex count != 1')
     s=s.replace(old,new)
 else:
-    # Se rádio ainda aparece em location compartilhado, não adivinar.
-    locs='
-'.join(line for line in s.splitlines() if 'location' in line and any(x in line for x in ['radioprincipal','radiopop','radiorock','radioclassicas','radiocountry']))
+    locs='\n'.join(line for line in s.splitlines() if 'location' in line and any(x in line for x in ['radioprincipal','radiopop','radiorock','radioclassicas','radiocountry']))
     if locs: raise SystemExit('unexpected shared radio locations: '+locs)
 for t in ['tvkids','tvteens','tvviva','tvmaisjovem','tvkidsweb']:
     if t not in s: raise SystemExit('TV token missing: '+t)
@@ -148,7 +142,6 @@ rm -f "$OLD_CONF" "$OLD_SNIP"
 section "8. VALIDAR E RECARREGAR NGINX"
 nginx -t
 nginx -T > "$ROLLBACK/nginx-T.after.txt" 2>&1
-# Os 5 nomes de rádio não podem mais aparecer em location da configuração compartilhada.
 if awk -v f="$SHARED" '
   /^# configuration file /{infile=($0 ~ f)}
   infile && /location/ && /(radioprincipal|radiopop|radiorock|radioclassicas|radiocountry)/{bad=1}
@@ -164,7 +157,8 @@ for host in "${HOSTS[@]}"; do
   code="$(curl -ksS --resolve "$host:443:127.0.0.1" --max-time 12 -o "$body" -w '%{http_code}' "https://$host/" || true)"
   [[ "$code" == 200 ]] || die "HOST:$host:HTTP:$code"
   if [[ "$host" == www.* ]]; then grep -Fq '<title>Rádio Studio Sat</title>' "$body" || die "PORTAL_BODY:$host"; else grep -Fq '<title>Rádio Studio Sat — Ao Vivo</title>' "$body" || die "PLAYER_BODY:$host"; fi
-  PASS=$((PASS+1)); echo "HOST_PASS=$host"
+  PASS=$((PASS+1))
+  echo "HOST_PASS=$host"
 done
 [[ "$PASS" -eq 12 ]] || die HOST_COUNT
 
@@ -176,11 +170,16 @@ done
 code="$(curl -ksSI --resolve www.radio.studiosatweb.com.br:443:127.0.0.1 --max-time 12 -o /dev/null -w '%{http_code}' https://www.radio.studiosatweb.com.br/app/ || true)"
 [[ "$code" == 302 ]] || die "WWW_APP_REDIRECT_HTTP:$code"
 
-section "11. REPORTAR HLS SEM TOCAR NAS FONTES"
+section "11. REPORTAR HLS SEM CONTROLAR A ORIGEM"
 ONLINE=0
 for p in "${PATHS[@]}"; do
   code="$(curl -ksSL --resolve radio.studiosatweb.com.br:443:127.0.0.1 --max-time 8 -o "$ROLLBACK/$p.m3u8" -w '%{http_code}' "https://radio.studiosatweb.com.br/$p/index.m3u8" || true)"
-  if [[ "$code" == 200 ]] && grep -q '^#EXTM3U' "$ROLLBACK/$p.m3u8"; then ONLINE=$((ONLINE+1)); echo "HLS=$p:ONLINE"; else echo "HLS=$p:OFFLINE_HTTP_$code"; fi
+  if [[ "$code" == 200 ]] && grep -q '^#EXTM3U' "$ROLLBACK/$p.m3u8"; then
+    ONLINE=$((ONLINE+1))
+    echo "HLS=$p:ONLINE"
+  else
+    echo "HLS=$p:OFFLINE_HTTP_$code"
+  fi
 done
 
 COMMITTED=1
@@ -191,7 +190,7 @@ echo "BACKUP=$BACKUP_PATH"
 echo "ROLLBACK=$ROLLBACK"
 echo "HOSTS_WEB=12/12"
 echo "HLS_ONLINE=$ONLINE/5"
-echo "P2_TOUCHED=NO"
+echo "SOURCE_CONTROLLED_BY_WEB=NO"
 echo "MEDIAMTX_RESTARTED=NO"
 echo "LIQUIDSOAP_TOUCHED=NO"
 echo "LOG=$LOG"
