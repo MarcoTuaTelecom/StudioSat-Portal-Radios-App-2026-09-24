@@ -37,6 +37,13 @@ for token in ['/manifest.webmanifest',"navigator.serviceWorker.register('/sw.js'
 for token in ['www.radio.studiosatweb.com.br','return 302 https://radio.studiosatweb.com.br/app/;']:
     if token not in ng: errors.append('nginx-app:'+token)
 
+# /app/ must not use alias to a single file. With an inherited "index index.html",
+# Nginx can append index.html to the alias target and return HTTP 500.
+if re.search(r'location\s*=\s*/app/\s*\{[^}]*alias\s+[^;]*index\.html\s*;', ng, re.S):
+    errors.append('nginx-app:file-alias-forbidden')
+if 'location = /app/' not in ng or 'root /var/www/studiosat-radio-app;' not in ng or 'try_files /index.html =404;' not in ng:
+    errors.append('nginx-app:root-try-files-required')
+
 for p in ROOT.rglob('*'):
     rel=p.relative_to(ROOT)
     if any(part in {'.git','__pycache__'} for part in rel.parts):
