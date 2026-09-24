@@ -143,7 +143,13 @@ done
 
 nginx -T > "$BACKUP/nginx-T.before.txt" 2>&1
 
-tar --xattrs --acls --numeric-owner -czpf   "$BACKUP/web-radio-before-${TS}.tar.gz"   "$BACKUP/var-www" "$BACKUP/nginx"   $( [[ -f "$BACKUP/old-studiosatweb-index.html" ]] && printf '%q' "$BACKUP/old-studiosatweb-index.html" )
+BACKUP_ITEMS=("$BACKUP/var-www" "$BACKUP/nginx")
+[[ -f "$BACKUP/old-studiosatweb-index.html" ]] &&
+  BACKUP_ITEMS+=("$BACKUP/old-studiosatweb-index.html")
+
+tar --xattrs --acls --numeric-owner -czpf \
+  "$BACKUP/web-radio-before-${TS}.tar.gz" \
+  "${BACKUP_ITEMS[@]}"
 
 tar -tzf "$BACKUP/web-radio-before-${TS}.tar.gz" >/dev/null
 sha256sum "$BACKUP/web-radio-before-${TS}.tar.gz" | tee "$BACKUP/SHA256SUMS.txt"
