@@ -82,7 +82,7 @@ finish(){
 trap finish EXIT
 trap 'echo "ERROR_LINE=${BASH_LINENO[0]:-unknown}"' ERR
 
-for c in nginx systemctl python3 curl grep awk sha256sum tar find stat cp rm install openssl getent node; do
+for c in nginx systemctl python3 curl grep awk sha256sum tar find stat cp rm install openssl getent; do
   need "$c"
 done
 
@@ -108,9 +108,14 @@ EOF
 
 section "1. RELEASE GATES — ANTES DE PRODUCAO"
 python3 "$ROOT/tests/validate_project.py"
-node --check "$ROOT/assets/js/stations.js"
-node --check "$ROOT/assets/js/hls-controller.js"
-node --check "$ROOT/player/sw.js"
+if command -v node >/dev/null 2>&1; then
+  node --check "$ROOT/assets/js/stations.js"
+  node --check "$ROOT/assets/js/hls-controller.js"
+  node --check "$ROOT/player/sw.js"
+  echo "NODE_SYNTAX=PASS"
+else
+  echo "NODE_SYNTAX=SKIPPED_NOT_INSTALLED_ON_NS1"
+fi
 for f in "$ROOT"/scripts/*.sh "$ROOT"/tests/*.sh; do bash -n "$f"; done
 bash "$ROOT/tests/nginx_integration.sh"
 echo "RELEASE_GATES=PASS"
