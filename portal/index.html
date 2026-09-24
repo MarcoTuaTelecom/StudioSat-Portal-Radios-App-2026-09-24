@@ -1,25 +1,70 @@
-<!doctype html><html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#e9ebee"><title>Rádio Studio Sat</title>
-<link rel="stylesheet" href="/assets/css/base.css"><link rel="stylesheet" href="/assets/css/portal.css"><script src="/assets/vendor/hls.min.js" defer></script><script src="/assets/js/stations.js" defer></script><script src="/assets/js/hls-controller.js" defer></script>
-</head><body>
-<header class="site-head"><div class="wrap head-in"><div class="brand">RÁDIO STUDIO SAT</div><nav class="nav" aria-label="Principal"><a href="#noticias">Notícias</a><a href="#emissoras">Emissoras</a><a href="#ranking">Mais ouvidas</a><a href="#artistas">Artistas</a></nav><a class="pill" href="https://radio.studiosatweb.com.br">OUVIR AO VIVO</a></div></header>
-<main class="wrap">
-<section class="hero"><article class="hero-main"><div class="eyebrow">Studio Sat</div><h1>Cinco rádios.<br>Uma só experiência.</h1><p>Música, cultura, informação e programação ao vivo em uma plataforma única. Escolha sua emissora e continue ouvindo enquanto navega.</p></article><aside class="side"><article class="side-card"><div class="eyebrow">AGORA</div><h2 id="heroStation">Principal</h2><p id="heroDesc">Grandes sucessos e programação principal.</p></article><article class="side-card"><div class="eyebrow">APP</div><h2>Instale a Studio Sat</h2><p>PWA das cinco emissoras, favoritos e player dedicado.</p><p><a class="pill" href="/app/">CENTRAL DE INSTALAÇÃO</a></p></article><article class="side-card"><div class="eyebrow">ESTABILIDADE</div><h2>Reprodução em velocidade real</h2><p>Player configurado para não acelerar o áudio para alcançar o live edge.</p></article></aside></section>
-<section id="noticias" class="section"><div class="section-head"><h2>Últimas notícias</h2></div><div class="stories"><article class="card"><div class="eyebrow">MÚSICA</div><h3>Novos lançamentos</h3><p>Área preparada para conteúdo editorial real da Studio Sat.</p></article><article class="card"><div class="eyebrow">CULTURA</div><h3>Histórias por trás das canções</h3><p>Entrevistas, especiais e perfis de artistas.</p></article><article class="card"><div class="eyebrow">AGENDA</div><h3>Shows e acontecimentos</h3><p>Agenda integrada à programação das emissoras.</p></article></div></section>
-<section id="emissoras" class="section"><div class="section-head"><h2>Escolha sua emissora</h2></div><div class="stations" id="stations"></div></section>
-<section id="ranking" class="section"><div class="section-head"><h2>Mais ouvidas</h2></div><div class="rank-grid"><div class="rank"><div class="rank-item"><div class="rank-num">1</div><div><b>Ranking Studio Sat</b><small>Pronto para dados de audiência reais.</small></div></div><div class="rank-item"><div class="rank-num">2</div><div><b>Seleção da semana</b><small>Espaço editorial sem dados inventados.</small></div></div><div class="rank-item"><div class="rank-num">3</div><div><b>Destaques</b><small>Pronto para integração futura.</small></div></div></div><div id="artistas" class="rank"><div class="eyebrow">ARTISTAS</div><h2>Conteúdo visual próprio</h2><p style="color:var(--muted)">Área preparada para perfis, entrevistas, especiais e chamadas para a emissora relacionada.</p></div></div></section>
-</main><footer><div class="wrap"><b>RÁDIO STUDIO SAT</b><p>Principal • Pop • Rock • Clássicas • Country</p></div></footer>
-<div class="mini-player"><div class="mini-in"><div class="np"><b id="now">Rádio Studio Sat — Principal</b><span>Programação ao vivo <span id="status" class="state">• preparando…</span></span></div><button id="play" class="round" aria-label="Reproduzir">▶</button><div class="player-right"><button id="mute" class="icon-btn" aria-label="Silenciar">🔊</button><label class="sr-only" for="volume">Volume</label><input id="volume" type="range" min="0" max="1" step=".01" value=".8"><a id="openPlayer" href="https://radio.studiosatweb.com.br/?station=radioprincipal" style="font-size:.78rem;font-weight:900">ABRIR APP</a></div></div></div>
-<audio id="audio" preload="none" playsinline></audio>
-<script>
-window.addEventListener('DOMContentLoaded',()=>{
- const stations=window.STUDIOSAT_STATIONS,byHost=window.STUDIOSAT_STATION_BY_HOST,audio=document.getElementById('audio'),statusEl=document.getElementById('status'),play=document.getElementById('play'),mute=document.getElementById('mute'),volume=document.getElementById('volume');
- const labels=location.hostname.toLowerCase().split('.'),hostKey=labels[0]==='www'?labels[1]:labels[0],wanted=byHost[hostKey]||'radioprincipal';
- let current=stations.find(s=>s.slug===wanted)||stations[0];
- const controller=new StudioSatAudioController(audio,{streamBase:'https://radio.studiosatweb.com.br',onStatus:(t,k)=>{statusEl.textContent='• '+t;statusEl.className='state '+k},onPlaying:()=>play.textContent='❚❚',onPause:()=>play.textContent='▶'});
- const box=document.getElementById('stations');
- function select(s,autoplay=false){current=s;document.getElementById('now').textContent=`Rádio Studio Sat — ${s.name}`;document.getElementById('heroStation').textContent=s.name;document.getElementById('heroDesc').textContent=s.desc;document.getElementById('openPlayer').href=`https://radio.studiosatweb.com.br/?station=${s.slug}`;controller.attach(s,{autoplay});}
- stations.forEach(s=>{const a=document.createElement('article');a.className='card station-card';a.innerHTML=`<div><div class="eyebrow">AO VIVO</div><h3>${s.name}</h3><p>${s.desc}</p></div><button type="button">▶ Ouvir</button>`;a.querySelector('button').onclick=()=>select(s,true);box.appendChild(a)});
- play.onclick=()=>audio.paused?controller.play():controller.pause();volume.oninput=()=>controller.setVolume(volume.value);mute.onclick=()=>mute.textContent=controller.toggleMute()?'🔇':'🔊';controller.setVolume(.8);select(current,false);
-});
-</script></body></html>
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Studio Sat Rádio</title>
+<meta name="theme-color" content="#f5f7f8">
+<meta name="description" content="Portal oficial Studio Sat — cinco emissoras ao vivo.">
+<meta name="studiosat-build" content="complete-rebuild-2026-09-24">
+<link rel="stylesheet" href="/assets/portal-complete.css">
+</head>
+<body>
+<header class="header">
+  <div class="page header-grid">
+    <a class="brand" data-route href="/">
+      <div class="brand-main">STUDIO SAT <span class="sound-bars"><i></i><i></i><i></i><i></i></span></div>
+      <div class="brand-sub">CINCO RÁDIOS. UMA SÓ PAIXÃO.</div>
+    </a>
+    <nav class="nav">
+      <a data-route href="/">INÍCIO</a>
+      <a data-route href="/emissoras/">RÁDIOS</a>
+      <a data-route href="/programacao/">PROGRAMAÇÃO</a>
+      <a data-route href="/noticias/">NOTÍCIAS</a>
+      <a data-route href="/sobre/">SOBRE</a>
+      <a data-route href="/contato/">CONTATO</a>
+    </nav>
+    <button class="header-search" aria-label="Pesquisar">⌕</button>
+    <span class="header-live">((•))&nbsp;&nbsp; AO VIVO</span>
+    <div class="header-note">MÚSICA QUE<br>CONECTA VOCÊ<br>24 HORAS</div>
+  </div>
+</header>
+
+<main id="app">
+  <div class="page loading">Carregando Studio Sat…</div>
+</main>
+
+<div class="bottom-player">
+  <div class="page player-grid">
+    <div class="player-current">
+      <div class="player-station-logo"><span>STUDIO<br>SAT</span><i></i><i></i><i></i></div>
+      <div class="player-current-text">
+        <strong id="pStation">Studio Sat Principal</strong>
+        <span id="pProgram">Hits da Manhã</span>
+        <small id="pTime">09:00 – 12:00</small><span id="pSignal" class="signal-pill" data-state="IDLE"><i></i><span>Aguardando reprodução</span></span>
+      </div>
+      <button class="heart" aria-label="Favoritar">♡</button>
+    </div>
+
+    <div class="transport">
+      <button class="transport-small" id="prevBtn" aria-label="Anterior">|◀</button>
+      <button class="transport-main" id="pPlay" aria-label="Play">▶</button>
+      <button class="transport-small" id="nextBtn" aria-label="Próxima">▶|</button>
+    </div>
+
+    <div class="player-tools">
+      <button class="tool-btn" id="mute" aria-label="Mudo">🔊</button>
+      <input class="volume" id="vol" type="range" min="0" max="1" step=".01">
+      <button class="tool-btn" id="shareBtn" aria-label="Compartilhar">⌯</button>
+      <span class="tool-separator"></span>
+      <button class="tool-btn" aria-label="Fila">☷</button>
+      <a href="/listen/" class="network-note">ABRIR APP<br>STUDIO SAT</a>
+    </div>
+  </div>
+</div>
+
+<audio id="audio" crossorigin="anonymous" playsinline></audio>
+<script src="/assets/vendor/hls.min.js"></script>
+<script type="module" src="/assets/portal-complete.js"></script>
+</body>
+</html>

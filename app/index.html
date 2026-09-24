@@ -1,37 +1,26 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111318">
-<title>App — Rádio Studio Sat</title>
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/assets/icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
-<link rel="stylesheet" href="/assets/css/base.css">
-<link rel="stylesheet" href="/assets/css/app.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111827">
+<title>Instalar Radio Studio Sat</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#111827;--muted:#667085;--line:#e5e9f1;--accent:#ef3b56;--ok:#16814a;--soft:#fff1f3}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}.wrap{width:min(980px,92vw);margin:auto}.top{display:flex;align-items:center;gap:16px;padding:26px 0}.brand{font-weight:950;letter-spacing:.08em;margin-right:auto}.back{color:var(--muted);text-decoration:none}.hero{padding:28px 0 22px}.eyebrow{font-size:12px;letter-spacing:.12em;font-weight:900;color:var(--accent)}h1{font-size:clamp(2.5rem,7vw,5rem);line-height:.95;letter-spacing:-.05em;margin:12px 0 16px}.lead{max-width:760px;color:var(--muted);font-size:1.05rem;line-height:1.65}.detected{margin-top:22px;background:#111827;color:#fff;border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px}.detected b{font-size:1.05rem}.detected span{opacity:.72;font-size:.9rem}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:20px 0 38px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;min-height:210px}.card.recommended{outline:3px solid rgba(239,59,86,.18);border-color:#f4a6b3}.platform{font-weight:950;font-size:1.2rem}.status{font-size:.78rem;margin-top:6px;font-weight:800;color:var(--ok)}.status.pending{color:#a36b00}.desc{color:var(--muted);line-height:1.5;font-size:.9rem;margin:12px 0 18px}.actions{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 15px;border-radius:13px;text-decoration:none;font-weight:900;border:1px solid var(--line);background:#fff;color:var(--ink)}.btn.primary{background:#111827;color:#fff;border-color:#111827}.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.disabled{opacity:.4;pointer-events:none}.note{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:34px;color:var(--muted);line-height:1.55}.note strong{color:var(--ink)}footer{border-top:1px solid var(--line);padding:24px 0 38px;color:var(--muted);font-size:.85rem}@media(max-width:720px){.grid{grid-template-columns:1fr}.top{padding:20px 0}.hero{padding-top:18px}}
+</style>
 </head>
 <body>
-<main class="install-wrap"><section class="install-card">
-<div class="brand">RÁDIO STUDIO SAT</div>
-<h1>Central de instalação</h1>
-<p>O aplicativo reúne Principal, Pop, Rock, Clássicas e Country em um único player.</p>
-<a class="action primary" href="https://radio.studiosatweb.com.br">ABRIR APP / PLAYER</a>
-<button id="install" class="action primary" hidden>INSTALAR PWA</button>
-<div id="installState" class="mini">Se o botão de instalação não aparecer, use a opção de instalação do próprio navegador.</div>
-<div id="apk"><p class="mini">APK Android: esta reconstrução não inventa um binário novo. Se o APK histórico for recuperado e validado, ele pode ser publicado aqui sem alterar o PWA.</p></div>
-<hr>
-<h2>iPhone / iPad</h2>
-<p class="mini">Abra esta página no Safari e use Compartilhar → Adicionar à Tela de Início.</p>
-<h2>Android / desktop</h2>
-<p class="mini">Abra esta página em um navegador compatível e use INSTALAR PWA ou a opção Instalar aplicativo do navegador.</p>
-<a class="action" href="https://www.radio.studiosatweb.com.br">VOLTAR AO PORTAL</a>
-</section></main>
+<header class="wrap top"><div class="brand">RADIO STUDIO SAT</div><a class="back" href="/">← Portal</a></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">CENTRAL OFICIAL DE INSTALAÇÃO</div><h1>Um app.<br>O dispositivo certo.</h1><p class="lead">Esta página identifica automaticamente seu aparelho e mostra a opção correta para Android, iPhone/iPad, Windows e Smart TV.</p><div class="detected"><div><b id="detectedTitle">Detectando dispositivo…</b><br><span id="detectedText">Aguarde um instante.</span></div></div></section>
+<section class="grid">
+<article class="card" data-platform="android"><div class="platform">Android</div><div class="status">DISPONÍVEL AGORA</div><div class="desc">Web App disponível agora. O APK nativo será oferecido somente quando existir um binário oficial validado.</div><div class="actions"><a class="btn accent disabled" href="#" >Baixar APK</a><a class="btn" href="/listen/">Usar Web App</a></div></article>
+<article class="card" data-platform="ios"><div class="platform">iPhone / iPad</div><div class="status">DISPONÍVEL AGORA VIA WEB APP</div><div class="desc">Abra no Safari e use normalmente. Para instalar na tela inicial: Compartilhar → Adicionar à Tela de Início. A versão nativa App Store será adicionada depois.</div><div class="actions"><a class="btn primary" href="/listen/">Abrir no iPhone</a><a class="btn disabled" href="#">App Store — em preparação</a></div></article>
+<article class="card" data-platform="windows"><div class="platform">Windows</div><div class="status">DISPONÍVEL AGORA</div><div class="desc">Web App instalável no Windows. No Edge ou Chrome, abra e use o botão Instalar quando oferecido pelo navegador.</div><div class="actions"><a class="btn primary" href="/listen/">Abrir / Instalar Windows</a></div></article>
+<article class="card" data-platform="tv"><div class="platform">Smart TV / Android TV</div><div class="status">DISPONÍVEL VIA NAVEGADOR</div><div class="desc">Interface adaptada para tela grande e controle remoto. Apps nativos Tizen, webOS e Android TV serão empacotados separadamente.</div><div class="actions"><a class="btn primary" href="/listen/?tv=1">Abrir versão TV</a></div></article>
+</section>
+<section class="note"><strong>Versão Web App 2026-09-24.</strong> O Web App está disponível agora. O APK nativo só será exibido depois de validado e publicado. iPhone, Windows e TVs podem usar o mesmo Web App real agora; isso não é um desenho ou mockup. A versão nativa de iPhone ainda exigirá assinatura Apple/TestFlight/App Store.</section>
+</main>
+<footer><div class="wrap">© 2026 Studio Sat Web</div></footer>
 <script>
-let promptEvent=null;const b=document.getElementById('install'),state=document.getElementById('installState');
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptEvent=e;b.hidden=false;state.textContent='Aplicativo pronto para instalação.'});
-window.addEventListener('appinstalled',()=>{b.hidden=true;state.textContent='Aplicativo instalado.'});
-b.onclick=async()=>{if(!promptEvent)return;promptEvent.prompt();const choice=await promptEvent.userChoice;state.textContent=choice.outcome==='accepted'?'Instalação aceita.':'Instalação cancelada.';promptEvent=null;b.hidden=true};
-if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+(function(){const u=navigator.userAgent||'',p=navigator.platform||'';let pf='web',title='Navegador detectado',text='Use o Web App da Studio Sat.';if(/iPhone|iPad|iPod/i.test(u)){pf='ios';title='iPhone / iPad detectado';text='A opção recomendada é abrir o Web App no Safari.'}else if(/Android/i.test(u)&&/TV|BRAVIA|AFT|SHIELD/i.test(u)){pf='tv';title='Android TV detectada';text='A opção recomendada é a versão para TV.'}else if(/Android/i.test(u)){pf='android';title='Android detectado';text='A opção recomendada é o APK nativo.'}else if(/Windows/i.test(u)||/Win/i.test(p)){pf='windows';title='Windows detectado';text='A opção recomendada é o Web App instalável.'}else if(/Tizen|SMART-TV|Web0S|webOS|HbbTV|NetCast|Viera|BRAVIA/i.test(u)){pf='tv';title='Smart TV detectada';text='A opção recomendada é a versão para TV.'}document.getElementById('detectedTitle').textContent=title;document.getElementById('detectedText').textContent=text;const c=document.querySelector('[data-platform="'+pf+'"]');if(c){c.classList.add('recommended');c.scrollIntoView({block:'nearest'});}})();
 </script>
 </body></html>

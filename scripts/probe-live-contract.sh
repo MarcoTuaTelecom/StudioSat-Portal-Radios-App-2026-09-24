@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+export LC_ALL=C
+umask 077
+[[ ${EUID:-$(id -u)} -eq 0 ]] || { echo FATAL=ROOT >&2; exit 1; }
+TS="$(date -u +%Y%m%dT%H%M%SZ)"; LOG="/root/2026-09-24-STUDIOSAT-WEB-HLS-CONTRACT-${TS}.txt"; exec > >(tee "$LOG") 2>&1
+PATHS=(radioprincipal radiopop radiorock radioclassicas radiocountry); echo MODE=READ_ONLY; BACKEND=0; PROXY=0
+for p in "${PATHS[@]}"; do a="/tmp/$p-a-$$.m3u8"; b="/tmp/$p-b-$$.m3u8"; c1=$(curl -sS --max-time 8 -o "$a" -w '%{http_code}' "http://127.0.0.1:8888/$p/index.m3u8"||true); sleep 3; c2=$(curl -sS --max-time 8 -o "$b" -w '%{http_code}' "http://127.0.0.1:8888/$p/index.m3u8"||true); adv=NO; segcode=NA; if [[ "$c1" == 200 && "$c2" == 200 ]]&&grep -q '^#EXTM3U' "$a"&&grep -q '^#EXTM3U' "$b"; then u1=$(grep -Ev '^#|^$' "$a"|tail -1||true); u2=$(grep -Ev '^#|^$' "$b"|tail -1||true); [[ "$u1" != "$u2" ]]&&adv=YES; seg=$(grep -Ev '^#|^$' "$b"|tail -1||true); [[ -n "$seg" ]]&&segcode=$(curl -sS --max-time 8 -o /dev/null -w '%{http_code}' "http://127.0.0.1:8888/$p/$seg"||true); fi; [[ "$adv" == YES && "$segcode" == 200 ]]&&BACKEND=$((BACKEND+1)); echo "BACKEND=$p HTTP1=$c1 HTTP2=$c2 ADVANCE=$adv SEGMENT=$segcode"; rm -f "$a" "$b"; f="/tmp/proxy-$p-$$.m3u8"; c=$(curl -ksS --resolve radio.studiosatweb.com.br:443:127.0.0.1 --max-time 8 -o "$f" -w '%{http_code}' "https://radio.studiosatweb.com.br/$p/index.m3u8"||true); grep -q '^#EXTM3U' "$f" 2>/dev/null&&m=YES||m=NO; [[ "$c" == 200 && "$m" == YES ]]&&PROXY=$((PROXY+1)); echo "NGINX_HLS=$p HTTP=$c MANIFEST=$m"; rm -f "$f"; done
+echo "BACKEND_HLS_CONTRACT=$BACKEND/5"; echo "NGINX_HLS_CONTRACT=$PROXY/5"; [[ "$BACKEND" -eq 5 && "$PROXY" -eq 5 ]]&&echo MEDIA_CONTRACT=PASS||echo MEDIA_CONTRACT=FAIL_READ_ONLY; echo "LOG=$LOG"
