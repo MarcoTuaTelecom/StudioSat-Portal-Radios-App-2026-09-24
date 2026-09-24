@@ -1,7 +1,9 @@
-const CACHE='studiosat-pwa-2026-09-24-v3';
+const CACHE='studiosat-pwa-2026-09-24-v4';
 const STATIC=[
   '/manifest.webmanifest',
   '/assets/icons/icon.svg',
+  '/assets/icons/icon-192.png',
+  '/assets/icons/icon-512.png',
   '/assets/css/base.css',
   '/assets/css/player.css',
   '/assets/js/stations.js',
@@ -56,7 +58,14 @@ self.addEventListener('fetch',event=>{
           }
           return response;
         })
-        .catch(()=>caches.match(event.request).then(hit=>hit||caches.match('/')))
+        .catch(async()=>{
+          const hit=await caches.match(event.request);
+          if(hit) return hit;
+          return new Response(
+            '<!doctype html><meta charset="utf-8"><title>Rádio Studio Sat</title><h1>Rádio Studio Sat</h1><p>Sem conexão no momento.</p>',
+            {status:503,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}
+          );
+        })
     );
     return;
   }
