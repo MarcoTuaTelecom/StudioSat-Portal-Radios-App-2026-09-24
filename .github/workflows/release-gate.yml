@@ -1,0 +1,48 @@
+name: release-gate
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nginx curl openssl
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install browser test dependency
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install chromium
+
+      - name: Static release validation
+        run: python3 tests/validate_project.py
+
+      - name: JavaScript syntax
+        run: |
+          node --check assets/js/stations.js
+          node --check assets/js/hls-controller.js
+          node --check player/sw.js
+
+      - name: Shell syntax
+        run: |
+          for f in scripts/*.sh tests/*.sh; do bash -n "$f"; done
+
+      - name: Nginx integration
+        run: bash tests/nginx_integration.sh
+
+      - name: Browser smoke
+        run: python3 tests/browser_smoke.py
