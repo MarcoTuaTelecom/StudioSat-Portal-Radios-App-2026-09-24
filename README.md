@@ -1,20 +1,23 @@
 # StudioSat Portal + App — 2026-09-24
 
-Projeto limpo e independente do portal público das rádios e do aplicativo/PWA da Studio Sat.
+Projeto do portal público e do aplicativo/PWA das cinco rádios Studio Sat.
 
-## Escopo
+## Escopo atual
 
-- Portal editorial das 5 rádios.
-- Player/app das 5 rádios.
-- PWA instalável.
-- Favoritos persistentes.
-- Central de instalação.
-- Metadados `now playing` opcionais.
-- HLS com velocidade travada em `1.0`.
-- HLS.js fixado em `1.7.3`.
-- Service Worker sem cache de mídia ao vivo.
-- Nginx isolado para rádio, sem lógica de playout.
-- Backup/deploy/rollback separados da aplicação.
+Este repositório contém somente a camada web:
+
+- portal das 5 rádios;
+- player/app;
+- PWA instalável;
+- favoritos;
+- Central de instalação;
+- metadados `now playing` opcionais;
+- HLS.js 1.7.3;
+- Nginx dedicado às rádios;
+- testes de release;
+- deploy e rollback exclusivamente da camada web.
+
+A origem de áudio não pertence a este projeto. O navegador apenas consome HLS do MediaMTX através do Nginx.
 
 ## Emissoras
 
@@ -27,57 +30,91 @@ Projeto limpo e independente do portal público das rádios e do aplicativo/PWA 
 ## Arquitetura
 
 ```text
-Fonte de áudio externa ao projeto web
-        ↓ RTMP
-MediaMTX no NS1
-        ↓ HLS :8888
+fonte externa
+    ↓
+MediaMTX
+    ↓ HLS
 Nginx
-        ├── www.radio...       → portal/
-        ├── radio...           → player/
-        ├── /assets/           → assets/
-        └── /<radio>/...       → MediaMTX HLS
+    ├── radio.*      → player/app
+    ├── www.radio.*  → portal
+    ├── /assets/     → assets web
+    └── /<radio>/    → proxy HLS
 ```
 
-O portal e o app são totalmente independentes do mecanismo que publica áudio no MediaMTX. Eles apenas consomem o HLS disponível.
+## PWA
+
+O manifesto inclui:
+
+- `id: /`;
+- `start_url: /`;
+- `scope: /`;
+- `display: standalone`;
+- ícones PNG 192x192 e 512x512;
+- ícone SVG complementar;
+- Service Worker com mídia ao vivo sempre `no-store`.
+
+O HTML de navegação também é entregue com política `no-store` no Nginx para impedir que a antiga página de manutenção volte por cache.
 
 ## HLS.js
 
-O repositório inclui um *bootstrap loader* de desenvolvimento fixado em `hls.js 1.7.3`. O deploy de produção baixa o bundle oficial `1.7.3` depois do backup completo e antes de qualquer mutação, valida o tamanho e injeta esse bundle no stage de produção sem alterar o checkout do repositório.
+Produção usa exatamente hls.js `1.7.3`.
 
-Também é possível atualizar manualmente o vendor do checkout com:
+O script `scripts/fetch-hls-vendor.sh` verifica o bundle por SHA256:
 
-```bash
-sudo bash scripts/fetch-hls-vendor.sh
+```text
+a12e7ee1cd64a69dcdb314157e45dafcba705bfb0b1440b7935cb265d374423e
 ```
 
-## Validação local
+Conteúdo divergente é rejeitado.
+
+## Gates de release
+
+Antes de qualquer deploy:
 
 ```bash
 python3 tests/validate_project.py
 python3 tests/browser_smoke.py
+bash tests/nginx_integration.sh
 ```
 
-O smoke test usa Chromium headless e não precisa de um stream real para validar navegação, seleção de rádios, favoritos, PWA e bloqueio de `playbackRate`.
+O teste Nginx sobe uma instância isolada em portas alternativas e verifica:
 
-## Deploy
+- sintaxe real do Nginx;
+- 12 hostnames;
+- portal e player corretos;
+- rota `/app/` retornando 200;
+- manifest, Service Worker, JS, CSS e ícones;
+- ausência da página antiga de construção;
+- política `no-store` para HTML;
+- redirecionamento da Central de instalação.
 
-No NS1, o deploy exige apenas:
+## Deploy de produção
 
-- Nginx ativo;
-- MediaMTX canônico ativo;
-- TLS válido;
-- configuração Nginx compartilhada em estado conhecido.
-
-Ele não controla, instala nem reconstrói qualquer playout. O estado das cinco fontes de áudio é apenas reportado no final.
+Existe somente um entrypoint de produção:
 
 ```bash
-sudo bash scripts/deploy-web.sh
+sudo bash scripts/deploy-production.sh
 ```
 
-## Origem
+Ele:
 
-Este projeto foi reconstruído a partir do candidato histórico `candidates/CHG-RWEB01` do repositório StudioSat existente e dos recursos já existentes no app antigo (cinco rádios, favoritos, PWA e central de instalação). O código deste repositório é uma nova base datada de 2026-09-24.
+1. executa todos os gates locais;
+2. valida Nginx, TLS e resolução dos 12 hostnames;
+3. faz backup transacional da camada web;
+4. baixa e verifica criptograficamente HLS.js;
+5. monta um stage e compara hashes com o projeto-fonte;
+6. substitui somente os diretórios web das rádios e o vhost dedicado;
+7. executa `nginx -t`;
+8. recarrega somente Nginx;
+9. certifica os 12 hosts localmente;
+10. certifica os 12 hosts pela rota pública.
 
-## Ícone PWA
+Não altera configuração compartilhada, DNS, firewall, systemd, TVs ou serviços de mídia.
 
-O manifesto usa `assets/icons/icon.svg` (`sizes: any`) para manter o projeto fonte inteiramente textual e auditável.
+## Rollback
+
+```bash
+sudo bash scripts/rollback-production.sh /var/backups/studiosat/PORTAL-APP-PRODUCTION/<timestamp>
+```
+
+O rollback atua somente sobre a camada web e recarrega Nginx.
