@@ -56,7 +56,7 @@ server {
   ssl_certificate_key $TMP/key.pem;
   root $TMP/stale;
   index index.html;
-  location / { try_files \\$uri \\$uri/ /index.html; }
+  location / { try_files \$uri \$uri/ /index.html; }
 }
 EOF
 
