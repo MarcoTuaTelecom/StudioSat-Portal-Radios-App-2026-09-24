@@ -26,7 +26,7 @@
 12. A Central de instalação não registrava Service Worker nem expunha manifest em sua origem canônica; corrigido.
 13. A Central aberta em hosts `www` poderia sugerir PWA da origem errada; `/app/` em `www.*` agora redireciona para `radio.studiosatweb.com.br/app/`.
 14. O deploy anterior não eliminava os conflitos Nginx legados já identificados no NS1; o novo deploy é transacional, preserva TV e desativa somente os conflitos de rádio conhecidos.
-15. O deploy anterior não exigia transformar o loader HLS.js em bundle local; agora isso acontece antes de qualquer mutação.
+15. O deploy anterior não exigia bundle HLS.js oficial; agora o backup completo acontece primeiro, depois o bundle 1.7.3 é baixado para `/run`, validado e injetado no stage sem alterar o checkout.
 
 ## Testes executados
 
