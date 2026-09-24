@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<title>App — Rádio Studio Sat</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/assets/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+<link rel="stylesheet" href="/assets/css/base.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+<main class="install-wrap"><section class="install-card">
+<div class="brand">RÁDIO STUDIO SAT</div>
+<h1>Central de instalação</h1>
+<p>O aplicativo reúne Principal, Pop, Rock, Clássicas e Country em um único player.</p>
+<a class="action primary" href="https://radio.studiosatweb.com.br">ABRIR APP / PLAYER</a>
+<button id="install" class="action primary" hidden>INSTALAR PWA</button>
+<div id="installState" class="mini">Se o botão de instalação não aparecer, use a opção de instalação do próprio navegador.</div>
+<div id="apk"><p class="mini">APK Android: esta reconstrução não inventa um binário novo. Se o APK histórico for recuperado e validado, ele pode ser publicado aqui sem alterar o PWA.</p></div>
+<hr>
+<h2>iPhone / iPad</h2>
+<p class="mini">Abra esta página no Safari e use Compartilhar → Adicionar à Tela de Início.</p>
+<h2>Android / desktop</h2>
+<p class="mini">Abra esta página em um navegador compatível e use INSTALAR PWA ou a opção Instalar aplicativo do navegador.</p>
+<a class="action" href="https://www.radio.studiosatweb.com.br">VOLTAR AO PORTAL</a>
+</section></main>
+<script>
+let promptEvent=null;const b=document.getElementById('install'),state=document.getElementById('installState');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptEvent=e;b.hidden=false;state.textContent='Aplicativo pronto para instalação.'});
+window.addEventListener('appinstalled',()=>{b.hidden=true;state.textContent='Aplicativo instalado.'});
+b.onclick=async()=>{if(!promptEvent)return;promptEvent.prompt();const choice=await promptEvent.userChoice;state.textContent=choice.outcome==='accepted'?'Instalação aceita.':'Instalação cancelada.';promptEvent=null;b.hidden=true};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body></html>
