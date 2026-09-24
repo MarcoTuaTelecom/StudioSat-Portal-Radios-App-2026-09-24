@@ -16,6 +16,7 @@
 - Nginx dedicado a 12 hostnames de rádio;
 - Central PWA canônica em `radio.studiosatweb.com.br/app/`; acessos `/app/` pelos hosts `www` redirecionam para a origem instalável;
 - deploy transacional independente do estado do P2 e com rollback automático;
-- deploy transforma o bootstrap HLS.js em bundle oficial local antes de alterar produção;
+- deploy baixa HLS.js 1.7.3 para arquivo temporário depois do backup completo e instala o bundle no stage sem alterar o checkout;
 - scripts de backup, deploy e rollback web;
-- validação estática e browser smoke test.
+- validação estática e browser smoke test;
+- auditoria final do repositório GitHub antes da instalação no NS1.
