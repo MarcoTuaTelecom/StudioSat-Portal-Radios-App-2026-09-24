@@ -3,16 +3,16 @@ set -Eeuo pipefail
 export LC_ALL=C
 umask 027
 
-# Studio Sat — instalacao pinada do Portal + App no NS1
+# Studio Sat — instalação pinada do Portal + App no NS1
 # Data: 2026-09-24
 #
-# Nao instala Liquidsoap.
-# Nao inicia/para/reinicia P2.
-# Nao reinicia MediaMTX.
-# Nao altera RadioBOSS, DNS, firewall ou servicos de TV.
+# Não instala Liquidsoap.
+# Não instala nem controla qualquer mecanismo de playout.
+# Não reinicia MediaMTX.
+# Não altera RadioBOSS, DNS, firewall ou serviços de TV.
 
 REPO="https://github.com/MarcoTuaTelecom/StudioSat-Portal-Radios-App-2026-09-24.git"
-EXPECTED_COMMIT="afaf09cfd940919ef0c3f59daf96e5dab34a20b3"
+EXPECTED_COMMIT="7d695be018057476d40bccdfd0ca2c851037f8b4"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 WORK="/run/studiosat-portal-app-install-${TS}"
 LOG="/root/2026-09-24-09-STUDIOSAT-INSTALAR-PORTAL-APP-NS1-${TS}.txt"
@@ -52,11 +52,11 @@ ESCOPO:
 - Central de instalacao;
 - assets;
 - configuracao Nginx exclusiva das radios;
-- backup completo antes da mutacao;
+- backup completo do stack atual antes da mutacao;
 - rollback automatico da web em caso de falha.
 
 FORA DO ESCOPO:
-- P2;
+- qualquer mecanismo de playout;
 - Liquidsoap;
 - RadioBOSS;
 - DNS;
@@ -101,7 +101,7 @@ systemctl is-active --quiet studiosat-mediamtx.service || die "MEDIAMTX_NAO_ATIV
 
 echo "NGINX_PREFLIGHT=PASS"
 echo "MEDIAMTX_PREFLIGHT=PASS"
-echo "P2_GATING=DISABLED_BY_DESIGN"
+echo "SOURCE_LAYER_OUTSIDE_WEB_SCOPE=YES"
 
 section "4. DEPLOY TRANSACIONAL"
 bash scripts/deploy-web.sh
@@ -110,7 +110,7 @@ section "5. RESULTADO DO WRAPPER"
 echo "INSTALL_WRAPPER=PASS"
 echo "SOURCE_COMMIT=$EXPECTED_COMMIT"
 echo "TEMP_SOURCE_REMOVED_ON_EXIT=YES"
-echo "P2_TOUCHED=NO"
+echo "SOURCE_LAYER_CONTROLLED=NO"
 echo "LIQUIDSOAP_TOUCHED=NO"
 echo "MEDIAMTX_RESTARTED=NO"
 echo "WRAPPER_LOG=$LOG"
