@@ -3,7 +3,7 @@
 ## 2026-09-24 — reconstrução limpa
 
 - separa portal, player/app e infraestrutura web;
-- remove dependência implícita de P2 da camada web;
+- elimina dependência de qualquer mecanismo de playout da camada web;
 - fixa `hls.js` em `1.7.3`;
 - adiciona fallback de carregamento para a biblioteca HLS;
 - trava `defaultPlaybackRate` e `playbackRate` em `1.0`;
@@ -15,7 +15,8 @@
 - central de instalação PWA;
 - Nginx dedicado a 12 hostnames de rádio;
 - Central PWA canônica em `radio.studiosatweb.com.br/app/`; acessos `/app/` pelos hosts `www` redirecionam para a origem instalável;
-- deploy transacional independente do estado do P2 e com rollback automático;
+- deploy transacional independente da origem de áudio e com rollback automático;
+- backup de produção focado no stack atual: Nginx, MediaMTX, TLS, web e estado do sistema;
 - deploy baixa HLS.js 1.7.3 para arquivo temporário depois do backup completo e instala o bundle no stage sem alterar o checkout;
 - scripts de backup, deploy e rollback web;
 - validação estática e browser smoke test;
