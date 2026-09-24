@@ -73,3 +73,7 @@ O `deploy-web.sh` não inicia, para ou reinicia MediaMTX, P2 ou qualquer playout
 ## Origem
 
 Este projeto foi reconstruído a partir do candidato histórico `candidates/CHG-RWEB01` do repositório StudioSat existente e dos recursos já existentes no app antigo (cinco rádios, favoritos, PWA e central de instalação). O código deste repositório é uma nova base datada de 2026-09-24.
+
+## Ícone PWA
+
+O manifesto usa `assets/icons/icon.svg` (`sizes: any`) para manter o projeto fonte inteiramente textual e auditável.

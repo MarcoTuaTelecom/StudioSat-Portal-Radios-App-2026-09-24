@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 VERSION="1.7.3"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="$ROOT/assets/vendor/hls.min.js"
+OUT="${1:-$ROOT/assets/vendor/hls.min.js}"
 TMP="$(mktemp)"; trap 'rm -f "$TMP"' EXIT
 URL1="https://cdn.jsdelivr.net/npm/hls.js@${VERSION}/dist/hls.min.js"
 URL2="https://unpkg.com/hls.js@${VERSION}/dist/hls.min.js"
