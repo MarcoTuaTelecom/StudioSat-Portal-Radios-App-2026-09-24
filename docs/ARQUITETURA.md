@@ -1,6 +1,6 @@
 # Arquitetura web Studio Sat
 
-A aplicação começa **depois** do MediaMTX. O navegador não conhece P2, Liquidsoap, RadioBOSS ou FFmpeg.
+A aplicação começa **depois** do MediaMTX. O navegador conhece apenas o HLS publicado pelo MediaMTX e não conhece nem controla a origem de áudio.
 
 ```text
 /radioprincipal/index.m3u8
@@ -41,3 +41,7 @@ Portal:
 - tentar `recoverMediaError()` no máximo duas vezes por sessão;
 - não cachear manifesto, segmento ou metadado ao vivo no Service Worker;
 - não usar Service Worker como proxy de áudio.
+
+## Separação de responsabilidades
+
+A camada web não cria, processa, recodifica, alterna nem recupera a fonte de áudio. Qualquer tecnologia futura de ingestão ou automação deve ser um componente independente, com contrato claro de publicação no MediaMTX.
