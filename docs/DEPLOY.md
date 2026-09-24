@@ -10,7 +10,7 @@ A camada web é independente do P2. Uma rádio sem publisher pode ficar sem áud
 2. `python3 tests/browser_smoke.py` (ambiente de desenvolvimento)
 3. No NS1, execute **somente** `sudo bash scripts/deploy-web.sh`.
 4. O deploy chama `scripts/backup-ns1-complete.sh` antes de qualquer mutação.
-5. O deploy substitui o bootstrap de HLS.js pelo bundle oficial 1.7.3 antes de qualquer mutação.
+5. Depois do backup completo, o deploy baixa o bundle oficial HLS.js 1.7.3 para `/run`, valida o tamanho e não modifica o checkout do repositório.
 6. Faz backup transacional da web/Nginx.
 7. Instala portal, player/PWA, app e assets.
 8. Desativa os conflitos Nginx de rádio conhecidos e remove os cinco paths de rádio da regex compartilhada com TV, preservando os paths de TV.
