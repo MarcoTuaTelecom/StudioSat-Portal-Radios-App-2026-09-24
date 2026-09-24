@@ -12,7 +12,7 @@ umask 027
 # Não altera RadioBOSS, DNS, firewall ou serviços de TV.
 
 REPO="https://github.com/MarcoTuaTelecom/StudioSat-Portal-Radios-App-2026-09-24.git"
-EXPECTED_COMMIT="7d695be018057476d40bccdfd0ca2c851037f8b4"
+EXPECTED_COMMIT="0b708770426c226114b1f7958cee8f5e51f46c2c"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 WORK="/run/studiosat-portal-app-install-${TS}"
 LOG="/root/2026-09-24-09-STUDIOSAT-INSTALAR-PORTAL-APP-NS1-${TS}.txt"
