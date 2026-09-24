@@ -40,8 +40,25 @@ repls={
  'return 302 https://radio.studiosatweb.com.br/app/;':f'return 302 https://radio.studiosatweb.com.br:{https}/app/;',
 }
 for a,b in repls.items(): s=s.replace(a,b)
+# Isolated test does not depend on host IPv6 availability.
+s='\n'.join(line for line in s.splitlines() if 'listen [::]:' not in line)+'\n'
 open(dst,'w',encoding='utf-8').write(s)
 PY
+
+mkdir -p "$TMP/stale"
+printf '%s\n' '<h1>Studio Sat Web - Em construção</h1>' > "$TMP/stale/index.html"
+
+cat > "$TMP/wildcard.conf" <<EOF
+server {
+  listen $HTTPS_PORT ssl;
+  server_name *.studiosatweb.com.br studiosatweb.com.br;
+  ssl_certificate $TMP/cert.pem;
+  ssl_certificate_key $TMP/key.pem;
+  root $TMP/stale;
+  index index.html;
+  location / { try_files \\$uri \\$uri/ /index.html; }
+}
+EOF
 
 cat > "$TMP/nginx.conf" <<EOF
 worker_processes 1;
@@ -51,6 +68,7 @@ http {
   include /etc/nginx/mime.types;
   access_log $TMP/access.log;
   error_log $TMP/error.log notice;
+  include $TMP/wildcard.conf;
   include $TMP/vhost.conf;
 }
 EOF
@@ -110,5 +128,5 @@ echo "NGINX_INTEGRATION=PASS"
 echo "HOSTS=12/12"
 echo "APP_ROUTE=200"
 echo "PWA_ASSETS=PASS"
-echo "STALE_PAGE=ABSENT"
+echo "EXACT_HOSTS_OVERRIDE_WILDCARD=PASS"\necho "STALE_PAGE=ABSENT"
 echo "NO_STORE_HTML=PASS"
