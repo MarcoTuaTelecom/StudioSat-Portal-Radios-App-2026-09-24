@@ -27,7 +27,7 @@ Projeto limpo e independente do portal público das rádios e do aplicativo/PWA 
 ## Arquitetura
 
 ```text
-Fonte de áudio (RadioBOSS / futura camada de ingestão)
+Fonte de áudio externa ao projeto web
         ↓ RTMP
 MediaMTX no NS1
         ↓ HLS :8888
@@ -38,17 +38,17 @@ Nginx
         └── /<radio>/...       → MediaMTX HLS
 ```
 
-O portal e o app **não dependem de P2, Liquidsoap, FFmpeg ou RadioBOSS** para existir. Eles apenas consomem o HLS que estiver disponível no MediaMTX.
+O portal e o app são totalmente independentes do mecanismo que publica áudio no MediaMTX. Eles apenas consomem o HLS disponível.
 
 ## HLS.js
 
-O repositório inclui um *bootstrap loader* de desenvolvimento fixado em `hls.js 1.7.3`. **O deploy de produção não aceita esse loader como dependência final**: depois do backup completo e antes de qualquer mutação na web/Nginx, ele baixa o bundle oficial `1.7.3` para um arquivo temporário, valida o tamanho e instala esse bundle no stage de produção sem alterar o checkout do repositório. Também é possível atualizar manualmente o arquivo vendor do checkout com:
+O repositório inclui um *bootstrap loader* de desenvolvimento fixado em `hls.js 1.7.3`. O deploy de produção baixa o bundle oficial `1.7.3` depois do backup completo e antes de qualquer mutação, valida o tamanho e injeta esse bundle no stage de produção sem alterar o checkout do repositório.
+
+Também é possível atualizar manualmente o vendor do checkout com:
 
 ```bash
 sudo bash scripts/fetch-hls-vendor.sh
 ```
-
-Quando chamado sem argumento, esse script substitui `assets/vendor/hls.min.js` pelo bundle oficial `1.7.3`. O deploy automático passa um destino temporário e mantém o checkout imutável.
 
 ## Validação local
 
@@ -61,14 +61,18 @@ O smoke test usa Chromium headless e não precisa de um stream real para validar
 
 ## Deploy
 
-**Não execute antes de revisar o NS1 atual.** O deploy faz backup da camada web antes de trocar arquivos.
+No NS1, o deploy exige apenas:
+
+- Nginx ativo;
+- MediaMTX canônico ativo;
+- TLS válido;
+- configuração Nginx compartilhada em estado conhecido.
+
+Ele não controla, instala nem reconstrói qualquer playout. O estado das cinco fontes de áudio é apenas reportado no final.
 
 ```bash
-sudo bash scripts/backup-web.sh
 sudo bash scripts/deploy-web.sh
 ```
-
-O `deploy-web.sh` não inicia, para ou reinicia MediaMTX, P2 ou qualquer playout. Ele exige backup completo do NS1, instala a camada web de forma transacional, remove somente os conflitos Nginx de rádio conhecidos, testa `nginx -t`, recarrega Nginx e valida os 12 hosts localmente. O estado das fontes de áudio é apenas reportado, nunca usado como gate da web.
 
 ## Origem
 
