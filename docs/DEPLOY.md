@@ -1,0 +1,33 @@
+# Deploy seguro no NS1
+
+## Pré-condição
+
+A camada web é independente do P2. Uma rádio sem publisher pode ficar sem áudio, mas isso **não bloqueia** a instalação do portal/app. O único gate de núcleo é o MediaMTX canônico estar ativo, pois ele é o backend HLS esperado pela configuração.
+
+## Execução
+
+1. `python3 tests/validate_project.py`
+2. `python3 tests/browser_smoke.py` (ambiente de desenvolvimento)
+3. No NS1, execute **somente** `sudo bash scripts/deploy-web.sh`.
+4. O deploy chama `scripts/backup-ns1-complete.sh` antes de qualquer mutação.
+5. O deploy substitui o bootstrap de HLS.js pelo bundle oficial 1.7.3 antes de qualquer mutação.
+6. Faz backup transacional da web/Nginx.
+7. Instala portal, player/PWA, app e assets.
+8. Desativa os conflitos Nginx de rádio conhecidos e remove os cinco paths de rádio da regex compartilhada com TV, preservando os paths de TV.
+9. Executa `nginx -t`; em qualquer erro, restaura automaticamente a camada web anterior.
+10. Recarrega somente Nginx.
+11. Valida localmente os 12 hosts HTTPS com `curl --resolve`.
+12. Consulta os cinco HLS e **reporta** quantos estão online; não inicia nem reinicia playout.
+
+## Não faz
+
+- não reinicia MediaMTX;
+- não toca em P2;
+- não instala Liquidsoap;
+- não altera RadioBOSS;
+- não altera DNS/firewall;
+- não altera serviços de TV.
+
+## Resultado esperado
+
+`DEPLOY_WEB=PASS`, `HOSTS_WEB=12/12` e `HLS_ONLINE=N/5`. O valor de `N` depende das fontes de áudio existentes naquele instante.
