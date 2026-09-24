@@ -13,7 +13,9 @@
 <audio id="audio" preload="none" playsinline></audio>
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
- const stations=window.STUDIOSAT_STATIONS,audio=document.getElementById('audio'),statusEl=document.getElementById('status'),play=document.getElementById('play'),mute=document.getElementById('mute'),volume=document.getElementById('volume');let current=stations[0];
+ const stations=window.STUDIOSAT_STATIONS,byHost=window.STUDIOSAT_STATION_BY_HOST,audio=document.getElementById('audio'),statusEl=document.getElementById('status'),play=document.getElementById('play'),mute=document.getElementById('mute'),volume=document.getElementById('volume');
+ const labels=location.hostname.toLowerCase().split('.'),hostKey=labels[0]==='www'?labels[1]:labels[0],wanted=byHost[hostKey]||'radioprincipal';
+ let current=stations.find(s=>s.slug===wanted)||stations[0];
  const controller=new StudioSatAudioController(audio,{streamBase:'https://radio.studiosatweb.com.br',onStatus:(t,k)=>{statusEl.textContent='• '+t;statusEl.className='state '+k},onPlaying:()=>play.textContent='❚❚',onPause:()=>play.textContent='▶'});
  const box=document.getElementById('stations');
  function select(s,autoplay=false){current=s;document.getElementById('now').textContent=`Rádio Studio Sat — ${s.name}`;document.getElementById('heroStation').textContent=s.name;document.getElementById('heroDesc').textContent=s.desc;document.getElementById('openPlayer').href=`https://radio.studiosatweb.com.br/?station=${s.slug}`;controller.attach(s,{autoplay});}
