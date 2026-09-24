@@ -1,33 +1,75 @@
 # Deploy seguro no NS1
 
-## Pré-condição
+## Regra
 
-A camada web é independente de qualquer mecanismo de playout. Uma rádio sem publisher pode ficar sem áudio, mas isso não bloqueia a instalação do portal/app. O único gate de mídia do deploy é o MediaMTX canônico estar ativo, pois ele é o backend HLS esperado pela configuração.
+A camada web é independente da origem de áudio. O deploy não controla nem modifica serviços de mídia.
 
-## Execução
+## Único entrypoint
 
-1. `python3 tests/validate_project.py`
-2. `python3 tests/browser_smoke.py` (ambiente de desenvolvimento)
-3. No NS1, execute **somente** `sudo bash scripts/deploy-web.sh`.
-4. O deploy chama `scripts/backup-ns1-complete.sh` antes de qualquer mutação.
-5. Depois do backup completo, baixa HLS.js 1.7.3 para `/run`, valida o tamanho e não modifica o checkout.
-6. Faz backup transacional da web/Nginx.
-7. Instala portal, player/PWA, app e assets.
-8. Desativa os conflitos Nginx de rádio conhecidos e remove os cinco paths de rádio da regex compartilhada com TV, preservando os paths de TV.
-9. Executa `nginx -t`; em qualquer erro, restaura automaticamente a camada web anterior.
-10. Recarrega somente Nginx.
-11. Valida localmente os 12 hosts HTTPS com `curl --resolve`.
-12. Consulta os cinco HLS e reporta quantos estão online, sem controlar a origem.
+```bash
+sudo bash scripts/deploy-production.sh
+```
 
-## Não faz
+Não use scripts históricos de deploy. Eles foram removidos do branch atual para evitar caminhos concorrentes.
 
-- não reinicia MediaMTX;
-- não instala nem controla playout;
-- não instala Liquidsoap;
-- não altera RadioBOSS;
-- não altera DNS/firewall;
-- não altera serviços de TV.
+## Gates antes de produção
 
-## Resultado esperado
+O próprio deploy executa:
 
-`DEPLOY_WEB=PASS`, `HOSTS_WEB=12/12` e `HLS_ONLINE=N/5`. O valor de `N` depende das fontes externas que estiverem publicando naquele instante.
+```bash
+python3 tests/validate_project.py
+node --check assets/js/stations.js
+node --check assets/js/hls-controller.js
+node --check player/sw.js
+bash tests/nginx_integration.sh
+```
+
+O teste Nginx isolado usa portas alternativas e reproduz a configuração do projeto sem tocar na instância de produção.
+
+## Mutação permitida
+
+Somente:
+
+- `/var/www/studiosat-radio-portal`
+- `/var/www/studiosat-radio-player`
+- `/var/www/studiosat-radio-app`
+- `/var/www/studiosat-radio-assets`
+- `/etc/nginx/conf.d/20-studiosat-radio-clean.conf`
+- remoção de `/etc/nginx/conf.d/studiosat-radio-v2.conf`, se ainda existir;
+- `systemctl reload nginx`.
+
+A configuração compartilhada `/etc/nginx/sites-available/studiosat` é verificada por SHA256 e não é alterada.
+
+## Backup e rollback
+
+Antes da troca, o deploy cria:
+
+```text
+/var/backups/studiosat/PORTAL-APP-PRODUCTION/<timestamp>/
+```
+
+Rollback manual:
+
+```bash
+sudo bash scripts/rollback-production.sh /var/backups/studiosat/PORTAL-APP-PRODUCTION/<timestamp>
+```
+
+## Critérios de aprovação
+
+A release só é declarada aprovada quando houver:
+
+```text
+RELEASE_GATES=PASS
+WEB_BACKUP=PASS
+NGINX_LOCAL=12/12
+NGINX_PUBLIC=12/12
+APP_PWA_ROUTES=PASS
+SHARED_NGINX_CHANGED=NO
+MEDIA_STACK_CHANGED=NO
+SYSTEMD_CHANGED=NO
+DNS_CHANGED=NO
+FIREWALL_CHANGED=NO
+TV_CHANGED=NO
+ONLY_SERVICE_OPERATION=NGINX_RELOAD
+PORTAL_APP_PRODUCTION=PASS
+```
