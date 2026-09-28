@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0c10">
+<title>Rádio Studio Sat — Portal</title>
+<link rel="icon" href="/assets/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/stations.js" defer></script>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">Studio Sat Web</div><a href="https://radio.studiosatweb.com.br/">Ouvir agora</a></header>
+<section class="portal-hero">
+<h1>Cinco emissoras. Um sinal limpo.</h1>
+<p>Portal e player reconstruídos sem vídeo pesado, sem metadados inventados e com HLS de baixa latência. Atraso alvo: poucos segundos.</p>
+</section>
+<div id="grid" class="grid"></div>
+<div class="note"><strong>Como ouvir:</strong> abra <a href="https://radio.studiosatweb.com.br/">radio.studiosatweb.com.br</a> e toque em ▶.</div>
+</div>
+<script>
+window.addEventListener("DOMContentLoaded",function(){
+var grid=document.getElementById("grid");
+(window.STUDIOSAT_STATIONS||[]).forEach(function(s){
+var a=document.createElement("a");a.className="card";a.href="https://radio.studiosatweb.com.br/?station="+encodeURIComponent(s.slug);
+a.innerHTML="<h2 style=\"color:"+s.accent+"\">"+s.name+"</h2><p>"+s.desc+"</p><span class=\"go\">Ouvir ao vivo →</span>";
+grid.appendChild(a);
+});
+});
+</script>
+</body>
+</html>
